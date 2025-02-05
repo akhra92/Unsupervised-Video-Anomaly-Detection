@@ -1,4 +1,4 @@
-# **PyTorch Implementation for Image Analysis**  
+# **Attention Network with Optional Activation Function for Unsupervised Video Anomaly Detection**  
 
 This repository contains the **PyTorch implementation** of our research paper published in the **ETRI Journal**. You can read the full paper here: [ETRI Journal](https://onlinelibrary.wiley.com/doi/10.4218/etrij.2024-0115).  
 
