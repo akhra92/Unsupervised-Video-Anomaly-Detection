@@ -3,7 +3,7 @@
 This repository contains the **PyTorch implementation** of our research paper published in the **ETRI Journal**. You can read the full paper here: [ETRI Journal](https://onlinelibrary.wiley.com/doi/10.4218/etrij.2024-0115).  
 
 ## **📌 Overview**  
-This project implements a **deep learning model** designed for advanced image analysis tasks. The method leverages PyTorch for training and evaluation, ensuring efficient learning and robust performance.  
+This project implements a **Attention-based Autoencoder Network with Optional Activation Function** designed for unsupervised video anomaly detection. The method leverages PyTorch for training and evaluation, ensuring efficient learning and robust performance.  
 
 ## **🚀 Getting Started**  
 
@@ -11,9 +11,8 @@ This project implements a **deep learning model** designed for advanced image an
 Ensure you have the following dependencies installed before running the code:  
 
 - **Python** 3.8+  
-- **PyTorch** 1.10+  
-- **Torchvision** 0.11+  
-- **CUDA** (if using GPU)  
+- **PyTorch** 1.7.1  
+- **Torchvision** 0.8.2  
 
 ### **2. Install Dependencies**  
 To install the required packages, run:  
@@ -23,10 +22,10 @@ pip install -r requirements.txt
 ```  
 
 ### **3. Prepare Datasets**  
-Download and place the dataset in the `Datasets/` folder. Ensure the data is structured correctly before running the model.  
+Download and place the dataset in the `datasets/` folder. Ensure the data is structured correctly before running the model.  
 
 ### **4. Configure Hyperparameters**  
-Modify hyperparameters such as **learning rate, number of epochs, batch size**, etc., in the `configs.yaml` file inside the `configs/` directory.  
+Modify hyperparameters such as **learning rate, number of epochs, batch size**, etc., in the `.yaml` file inside the `configs/` directory.  
 
 ---
 
@@ -49,7 +48,7 @@ python test.py
 ## **📂 Project Structure**  
 ```
 Image-Analysis-ETRI/
-│── configs/           # Configuration files (configs.yaml)
+│── config/           # Configuration files (configs.yaml)
 │── datasets/          # Folder to store datasets
 │── models/            # Model architecture definitions
 │── utils/             # Helper functions and utilities
