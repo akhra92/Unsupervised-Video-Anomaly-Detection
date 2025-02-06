@@ -47,7 +47,7 @@ python test.py
 
 ## **📂 Project Structure**  
 ```
-Image-Analysis-ETRI/
+Unsupervised-Video-Anomaly-Detection/
 │── config/           # Configuration files (configs.yaml)
 │── datasets/          # Folder to store datasets
 │── models/            # Model architecture definitions
