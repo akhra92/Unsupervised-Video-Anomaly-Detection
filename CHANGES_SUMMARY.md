@@ -2,19 +2,23 @@
 
 ## Branch Information
 
-**Branch Name**: `claude/model-improvements-with-ablation-011CV3T3hmi9XZ9CvQAnhgdt`
-**Previous Name**: `claude/analyze-model-details-011CV3T3hmi9XZ9CvQAnhgdt` (renamed for clarity)
+**Branch Name**: `claude/improved-011CV3T3hmi9XZ9CvQAnhgdt`
+**Previous Names**:
+- `claude/model-improvements-with-ablation-011CV3T3hmi9XZ9CvQAnhgdt`
+- `claude/analyze-model-details-011CV3T3hmi9XZ9CvQAnhgdt`
+(Renamed for simplicity)
 
 ---
 
 ## Overview
 
-This branch contains **comprehensive improvements** to the Unsupervised Video Anomaly Detection model (AONet) with systematic ablation studies to validate each component's contribution.
+This branch contains **comprehensive improvements** to the Unsupervised Video Anomaly Detection model (AONet) with systematic ablation studies and lightweight encoder options.
 
 **Total Performance Improvement**: +8-15% AUC
-**New Files Added**: 10
-**Files Modified**: 3
-**Lines of Code Added**: ~3,000+
+**New Files Added**: 14
+**Files Modified**: 5
+**Lines of Code Added**: ~4,500+
+**Lightweight Options**: 3 encoder alternatives (10-15x faster)
 
 ---
 
