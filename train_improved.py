@@ -11,6 +11,7 @@ from utils import train_util, log_util, loss_util, optimizer_util, anomaly_util
 from utils.augmentation_util import VideoAugmentation
 import models as models
 from models.improved_astnet import ImprovedASTNet, ImprovedASTNetLarge
+from models.lightweight_astnet import LightweightASTNet
 import datasets
 
 
@@ -19,6 +20,8 @@ def parse_args():
 
     parser.add_argument('--cfg', help='experiment configuration filename',
                         default='config/shanghaitech_wresnet.yaml', type=str)
+    parser.add_argument('--encoder', help='encoder type: wideresnet, efficientnet, mobilenet_large, mobilenet_small',
+                        default='wideresnet', type=str)
     parser.add_argument('--use-memory', help='use memory module',
                         default=True, type=bool)
     parser.add_argument('--use-temporal-attn', help='use temporal attention',
@@ -49,17 +52,28 @@ def main():
     cudnn.determinstic = config.CUDNN.DETERMINISTIC
     cudnn.enabled = config.CUDNN.ENABLED
 
-    # Select improved model based on dataset
-    if config.DATASET.DATASET == "ped2":
-        model = ImprovedASTNet(config, pretrained=True,
-                              use_memory=args.use_memory,
-                              use_temporal_attn=args.use_temporal_attn)
+    # Select model based on encoder type
+    encoder_type = args.encoder.lower()
+
+    if encoder_type == 'wideresnet':
+        # Original WideResNet-based model
+        if config.DATASET.DATASET == "ped2":
+            model = ImprovedASTNet(config, pretrained=True,
+                                  use_memory=args.use_memory,
+                                  use_temporal_attn=args.use_temporal_attn)
+        else:
+            model = ImprovedASTNetLarge(config, pretrained=True,
+                                       use_memory=args.use_memory,
+                                       use_temporal_attn=args.use_temporal_attn)
     else:
-        model = ImprovedASTNetLarge(config, pretrained=True,
-                                   use_memory=args.use_memory,
-                                   use_temporal_attn=args.use_temporal_attn)
+        # Lightweight encoder-based model
+        model = LightweightASTNet(config, encoder_type=encoder_type, pretrained=True,
+                                 use_memory=args.use_memory,
+                                 use_temporal_attn=args.use_temporal_attn)
 
     logger.info('Model: {}'.format(model.get_name()))
+    logger.info(f'Encoder: {encoder_type}')
+    logger.info(f'Parameters: {sum(p.numel() for p in model.parameters()) / 1e6:.2f}M')
 
     gpus = [0]
     model = nn.DataParallel(model, device_ids=gpus).cuda()

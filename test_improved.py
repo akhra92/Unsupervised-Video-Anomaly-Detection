@@ -10,6 +10,7 @@ import datasets
 from utils import train_util, log_util, anomaly_util
 from config.defaults import _C as config, update_config
 from models.improved_astnet import ImprovedASTNet, ImprovedASTNetLarge
+from models.lightweight_astnet import LightweightASTNet
 
 import torch.multiprocessing
 torch.multiprocessing.set_sharing_strategy('file_system')
@@ -22,6 +23,8 @@ def parse_args():
                         default='config/ped2_wresnet.yaml', type=str)
     parser.add_argument('--model-file', help='model parameters',
                         default='output/final_state_improved.pth', type=str)
+    parser.add_argument('--encoder', help='encoder type: wideresnet, efficientnet, mobilenet_large, mobilenet_small',
+                        default='wideresnet', type=str)
     parser.add_argument('--use-multiscale', help='use multi-scale anomaly scoring',
                         default=True, type=bool)
 
@@ -54,17 +57,28 @@ def main():
 
     gpus = [0]
 
-    # Load improved model
-    if config.DATASET.DATASET == "ped2":
-        model = ImprovedASTNet(config, pretrained=False,
-                              use_memory=True,
-                              use_temporal_attn=True)
+    # Select model based on encoder type
+    encoder_type = args.encoder.lower()
+
+    if encoder_type == 'wideresnet':
+        # Original WideResNet-based model
+        if config.DATASET.DATASET == "ped2":
+            model = ImprovedASTNet(config, pretrained=False,
+                                  use_memory=True,
+                                  use_temporal_attn=True)
+        else:
+            model = ImprovedASTNetLarge(config, pretrained=False,
+                                       use_memory=True,
+                                       use_temporal_attn=True)
     else:
-        model = ImprovedASTNetLarge(config, pretrained=False,
-                                   use_memory=True,
-                                   use_temporal_attn=True)
+        # Lightweight encoder-based model
+        model = LightweightASTNet(config, encoder_type=encoder_type, pretrained=False,
+                                 use_memory=True,
+                                 use_temporal_attn=True)
 
     logger.info('Model: {}'.format(model.get_name()))
+    logger.info(f'Encoder: {encoder_type}')
+    logger.info(f'Parameters: {sum(p.numel() for p in model.parameters()) / 1e6:.2f}M')
     model = nn.DataParallel(model, device_ids=gpus).to(device=torch.device('cuda:0'))
     logger.info('Model file: {}'.format(args.model_file))
 

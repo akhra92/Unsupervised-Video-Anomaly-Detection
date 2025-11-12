@@ -19,7 +19,8 @@ We've significantly enhanced the original model with state-of-the-art improvemen
 
 📖 See [QUICKSTART_IMPROVED.md](QUICKSTART_IMPROVED.md) for usage
 📚 See [IMPROVEMENTS.md](IMPROVEMENTS.md) for detailed documentation
-🔬 See [ABLATION_STUDY.md](ABLATION_STUDY.md) for ablation studies  
+🔬 See [ABLATION_STUDY.md](ABLATION_STUDY.md) for ablation studies
+⚡ See [LIGHTWEIGHT_MODELS.md](LIGHTWEIGHT_MODELS.md) for fast inference  
 
 ## **🚀 Getting Started**  
 
@@ -72,7 +73,9 @@ Unsupervised-Video-Anomaly-Detection/
 │   ├── wresnet1024_cattn_tsm.py # Original model (Ped2)
 │   ├── wresnet2048_*.py         # Original model (ShanghaiTech)
 │   ├── advanced_modules.py      # NEW: Temporal attention, memory, CBAM
-│   └── improved_astnet.py       # NEW: Improved model architectures
+│   ├── improved_astnet.py       # NEW: Improved model architectures
+│   ├── lightweight_encoders.py  # NEW: EfficientNet, MobileNetV3 encoders
+│   └── lightweight_astnet.py    # NEW: Lightweight model variants
 │── utils/
 │   ├── loss_util.py             # Loss functions (+ perceptual loss)
 │   ├── anomaly_util.py          # Anomaly scoring (+ multi-scale)
@@ -87,6 +90,7 @@ Unsupervised-Video-Anomaly-Detection/
 │── IMPROVEMENTS.md              # NEW: Detailed improvement docs
 │── QUICKSTART_IMPROVED.md       # NEW: Quick start guide
 │── ABLATION_STUDY.md            # NEW: Ablation study guide
+│── LIGHTWEIGHT_MODELS.md        # NEW: Lightweight encoder guide
 │── requirements.txt             # List of dependencies
 └── README.md                    # Project documentation
 ```  

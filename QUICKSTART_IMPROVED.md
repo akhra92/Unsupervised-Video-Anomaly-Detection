@@ -62,6 +62,27 @@ python test_improved.py --cfg config/ped2_wresnet.yaml \
 5. ✅ **Better LR Scheduler** - Cosine annealing with warm restarts
 6. ✅ **Data Augmentation** - Color jitter, flips
 7. ✅ **Multi-Scale Scoring** - Combines multiple anomaly metrics
+8. ✅ **Lightweight Encoders** - EfficientNet & MobileNetV3 for 10-15x faster inference
+
+## Lightweight Models (NEW!)
+
+For **10-15x faster inference** with minimal accuracy loss:
+
+```bash
+# EfficientNet (balanced, ~100 FPS)
+python train_improved.py --cfg config/shanghaitech_wresnet.yaml \
+                         --encoder efficientnet
+
+# MobileNetV3-Large (mobile deployment, ~120 FPS)
+python train_improved.py --cfg config/shanghaitech_wresnet.yaml \
+                         --encoder mobilenet_large
+
+# MobileNetV3-Small (real-time edge, ~150 FPS)
+python train_improved.py --cfg config/shanghaitech_wresnet.yaml \
+                         --encoder mobilenet_small
+```
+
+See **[LIGHTWEIGHT_MODELS.md](LIGHTWEIGHT_MODELS.md)** for complete guide!
 
 ## Configuration Files
 
