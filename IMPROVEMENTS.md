@@ -397,17 +397,50 @@ python test_improved.py --use-multiscale False
 
 ---
 
-## 10. Ablation Study Recommendations
+## 10. Ablation Studies
 
-To understand contribution of each component, run:
+We provide comprehensive ablation study scripts to verify each component's contribution:
 
-1. **Baseline**: Original model
-2. **+Temporal Attn**: Use temporal attention only
-3. **+Memory**: Add memory module
-4. **+CBAM**: Add spatial+channel attention
-5. **+Perceptual**: Add perceptual loss
-6. **+Augmentation**: Add data augmentation
-7. **Full Model**: All improvements combined
+### Running Ablation Studies
+
+```bash
+# Run all ablation experiments (recommended)
+python ablation_study.py --cfg config/shanghaitech_wresnet.yaml \
+                         --ablation all \
+                         --epochs 50
+
+# Run specific ablation
+python ablation_study.py --ablation temporal_attention --epochs 50
+
+# Visualize results
+python visualize_ablation.py --results ablation_results/ablation_summary.json \
+                             --output ablation_plots
+```
+
+### Available Ablation Configurations
+
+1. **baseline** - Original model (no improvements)
+2. **temporal_attention** - Temporal attention only (+2-4% AUC)
+3. **memory** - Memory module only (+3-5% AUC)
+4. **cbam** - CBAM attention only (+1-2% AUC)
+5. **perceptual** - Perceptual loss only (+1-2% AUC)
+6. **augmentation** - Data augmentation only (+2-3% AUC)
+7. **lr_scheduler** - Cosine LR scheduler only (+1% AUC)
+8. **temporal_memory** - Combined temporal + memory (+4-6% AUC)
+9. **attention_modules** - All attention modules (+3-5% AUC)
+10. **loss_improvements** - All loss improvements (+2-3% AUC)
+11. **training_improvements** - All training improvements (+2-3% AUC)
+12. **full_model** - All improvements combined (+8-15% AUC)
+
+### Visualization Outputs
+
+The ablation study generates:
+- **AUC Comparison Chart** - Side-by-side comparison
+- **Component Contributions** - Individual component analysis
+- **Cumulative Effect Plot** - Progressive improvement curve
+- **Summary Table** - Detailed text report
+
+See **[ABLATION_STUDY.md](ABLATION_STUDY.md)** for comprehensive documentation.
 
 ---
 

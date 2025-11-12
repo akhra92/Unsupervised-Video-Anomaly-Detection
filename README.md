@@ -18,7 +18,8 @@ We've significantly enhanced the original model with state-of-the-art improvemen
 **Expected Performance Gains**: +8-15% AUC improvement!
 
 📖 See [QUICKSTART_IMPROVED.md](QUICKSTART_IMPROVED.md) for usage
-📚 See [IMPROVEMENTS.md](IMPROVEMENTS.md) for detailed documentation  
+📚 See [IMPROVEMENTS.md](IMPROVEMENTS.md) for detailed documentation
+🔬 See [ABLATION_STUDY.md](ABLATION_STUDY.md) for ablation studies  
 
 ## **🚀 Getting Started**  
 
@@ -81,8 +82,11 @@ Unsupervised-Video-Anomaly-Detection/
 │── test.py                      # Original testing script
 │── train_improved.py            # NEW: Enhanced training script
 │── test_improved.py             # NEW: Enhanced testing script
+│── ablation_study.py            # NEW: Systematic ablation studies
+│── visualize_ablation.py        # NEW: Visualize ablation results
 │── IMPROVEMENTS.md              # NEW: Detailed improvement docs
 │── QUICKSTART_IMPROVED.md       # NEW: Quick start guide
+│── ABLATION_STUDY.md            # NEW: Ablation study guide
 │── requirements.txt             # List of dependencies
 └── README.md                    # Project documentation
 ```  
