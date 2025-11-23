@@ -2,11 +2,8 @@
 
 ## Branch Information
 
-**Branch Name**: `claude/improved-011CV3T3hmi9XZ9CvQAnhgdt`
-**Previous Names**:
-- `claude/model-improvements-with-ablation-011CV3T3hmi9XZ9CvQAnhgdt`
-- `claude/analyze-model-details-011CV3T3hmi9XZ9CvQAnhgdt`
-(Renamed for simplicity)
+**Branch Name**: `feature/updated-anomaly-detection`
+
 
 ---
 
@@ -310,6 +307,6 @@ If you use this improved model, please cite:
 
 ---
 
-**Branch**: `claude/model-improvements-with-ablation-011CV3T3hmi9XZ9CvQAnhgdt`
+**Branch**: `feature/updated-anomaly-detection`
 **Status**: ✅ Complete and Ready for Use
 **Last Updated**: 2025-01-15
