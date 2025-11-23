@@ -304,9 +304,3 @@ If you use this improved model, please cite:
 - 🔬 **Ablation Studies**: See [ABLATION_STUDY.md](ABLATION_STUDY.md)
 - 🐛 **Issues**: Open issue on GitHub
 - 💬 **Questions**: Check documentation first, then ask
-
----
-
-**Branch**: `feature/updated-anomaly-detection`
-**Status**: ✅ Complete and Ready for Use
-**Last Updated**: 2025-01-15
