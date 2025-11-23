@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from math import exp
+import torchvision.models as models
 
 class IntensityLoss(nn.Module):
     def __init__(self):
@@ -236,3 +237,144 @@ class MultiLossFunction(nn.Module):
         #l2_loss = self.l2_loss(prediction, target)
 
         #return inte_loss, grad_loss, msssim, l2_loss
+
+
+class PerceptualLoss(nn.Module):
+    """
+    Perceptual loss using VGG16 features.
+    Captures semantic similarity better than pixel-level losses.
+    """
+    def __init__(self, feature_layers=[3, 8, 15, 22]):
+        super(PerceptualLoss, self).__init__()
+
+        # Load pre-trained VGG16
+        vgg = models.vgg16(pretrained=True)
+        self.feature_extractor = nn.ModuleList()
+
+        # Extract features from specified layers
+        prev_layer = 0
+        for layer_idx in feature_layers:
+            self.feature_extractor.append(
+                nn.Sequential(*list(vgg.features[prev_layer:layer_idx+1]))
+            )
+            prev_layer = layer_idx + 1
+
+        # Freeze VGG parameters
+        for param in self.feature_extractor.parameters():
+            param.requires_grad = False
+
+        self.feature_extractor.eval()
+
+        # Loss weights for different layers
+        self.layer_weights = [1.0, 1.0, 1.0, 1.0]
+
+    def forward(self, prediction, target):
+        """
+        Compute perceptual loss
+
+        Args:
+            prediction: Generated image [B, 3, H, W] in range [-1, 1]
+            target: Ground truth image [B, 3, H, W] in range [-1, 1]
+        """
+        # Normalize to [0, 1] then to ImageNet stats
+        pred_norm = self.normalize_imagenet(prediction)
+        target_norm = self.normalize_imagenet(target)
+
+        total_loss = 0.0
+
+        # Extract features from each layer
+        pred_input = pred_norm
+        target_input = target_norm
+
+        for i, layer in enumerate(self.feature_extractor):
+            pred_input = layer(pred_input)
+            target_input = layer(target_input)
+
+            # Compute L2 loss between features
+            layer_loss = F.mse_loss(pred_input, target_input)
+            total_loss += self.layer_weights[i] * layer_loss
+
+        return total_loss / len(self.feature_extractor)
+
+    def normalize_imagenet(self, x):
+        """Normalize from [-1, 1] to ImageNet statistics"""
+        # First convert to [0, 1]
+        x = (x + 1.0) / 2.0
+
+        # Then normalize with ImageNet mean and std
+        mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1).to(x.device)
+        std = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1).to(x.device)
+
+        x = (x - mean) / std
+        return x
+
+
+class ImprovedMultiLossFunction(nn.Module):
+    """
+    Enhanced multi-component loss function with perceptual loss and configurable weights.
+    """
+    def __init__(self, config, use_perceptual=True):
+        super(ImprovedMultiLossFunction, self).__init__()
+
+        # Original losses
+        self.intensity_loss = IntensityLoss()
+        self.gradient_loss = GradientLoss(channels=config.DATASET.NUM_INCHANNELS)
+        self.msssim_loss = MSSSIM()
+        self.l2_loss = L2Loss()
+
+        # New: Perceptual loss
+        self.use_perceptual = use_perceptual
+        if use_perceptual:
+            self.perceptual_loss = PerceptualLoss()
+
+        # Configurable weights (can be tuned)
+        self.weight_intensity = 1.0
+        self.weight_gradient = 1.0
+        self.weight_msssim = 1.0
+        self.weight_l2 = 1.0
+        self.weight_perceptual = 0.1  # Lower weight as it's already scaled
+
+    def forward(self, prediction, target):
+        """
+        Compute weighted combination of all losses
+
+        Args:
+            prediction: Model output [B, 3, H, W]
+            target: Ground truth [B, 3, H, W]
+        """
+        # Original losses
+        inte_loss = self.intensity_loss(prediction, target)
+        grad_loss = self.gradient_loss(prediction, target)
+        msssim = (1 - self.msssim_loss(prediction, target)) / 2
+        l2_loss = self.l2_loss(prediction, target)
+
+        # Compute total loss
+        total_loss = (
+            self.weight_intensity * inte_loss +
+            self.weight_gradient * grad_loss +
+            self.weight_msssim * msssim +
+            self.weight_l2 * l2_loss
+        )
+
+        # Add perceptual loss if enabled
+        if self.use_perceptual:
+            percep_loss = self.perceptual_loss(prediction, target)
+            total_loss += self.weight_perceptual * percep_loss
+
+        return total_loss
+
+    def get_loss_components(self, prediction, target):
+        """
+        Return individual loss components for logging/analysis
+        """
+        losses = {
+            'intensity': self.intensity_loss(prediction, target).item(),
+            'gradient': self.gradient_loss(prediction, target).item(),
+            'msssim': ((1 - self.msssim_loss(prediction, target)) / 2).item(),
+            'l2': self.l2_loss(prediction, target).item(),
+        }
+
+        if self.use_perceptual:
+            losses['perceptual'] = self.perceptual_loss(prediction, target).item()
+
+        return losses
