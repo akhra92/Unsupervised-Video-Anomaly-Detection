@@ -5,6 +5,21 @@ This repository contains the **PyTorch implementation** of our research paper pu
 ## **📌 Overview**  
 This project implements a **Attention-based Autoencoder Network with Optional Activation Function** designed for unsupervised video anomaly detection. The method leverages PyTorch for training and evaluation, ensuring efficient learning and robust performance.  
 
+## **🎬 Demo**  
+
+<p align="center">
+  <img src="assets/ped2_demo.gif" width="100%"/>
+</p>
+
+On **UCSD Ped2 (Test 01)**, the clip plays on the left while the model's per-frame **anomaly score** is plotted on the right. The score stays low during normal pedestrian traffic and rises sharply as a cyclist enters the walkway, aligning with the shaded ground-truth anomaly window.
+
+Generate the animation from a trained checkpoint:
+
+```sh
+python tools/make_demo.py --cfg config/ped2_wresnet.yaml \
+    --model-file <path-to-checkpoint>.pth --clip 01 --out assets/ped2_demo.gif
+```
+
 ## **🚀 Getting Started**  
 
 ### **1. Prerequisites**  

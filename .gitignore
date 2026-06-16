@@ -199,4 +199,14 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Datasets
+datasets/
+
+# Log files
+log/
+
+# Pretrained weights
+pretrained/
+
+
 # End of https://www.toptal.com/developers/gitignore/api/python,windows
