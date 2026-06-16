@@ -16,8 +16,8 @@ def calculate_auc(config, psnr_list, mat):
     df = config.MODEL.DECODED_FRAMES
     fp = ef + df  # number of frames to process
 
-    scores = np.array([], dtype=np.float)
-    labels = np.array([], dtype=np.int)
+    scores = np.array([], dtype=np.float64)
+    labels = np.array([], dtype=np.int64)
 
     for i in range(len(psnr_list)):
         score = anomaly_score(psnr_list[i], np.max(psnr_list[i]), np.min(psnr_list[i]))

@@ -41,7 +41,7 @@ def main():
     logger.info(pprint.pformat(config))
 
     cudnn.benchmark = config.CUDNN.BENCHMARK
-    cudnn.determinstic = config.CUDNN.DETERMINISTIC
+    cudnn.deterministic = config.CUDNN.DETERMINISTIC
     cudnn.enabled = config.CUDNN.ENABLED
 
     if config.DATASET.DATASET == "ped2":

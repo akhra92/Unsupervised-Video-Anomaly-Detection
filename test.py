@@ -45,7 +45,7 @@ def main():
     logger.info(pprint.pformat(config))
 
     cudnn.benchmark = config.CUDNN.BENCHMARK
-    cudnn.determinstic = config.CUDNN.DETERMINISTIC
+    cudnn.deterministic = config.CUDNN.DETERMINISTIC
     cudnn.enabled = config.CUDNN.ENABLED
 
     config.defrost()
@@ -61,7 +61,7 @@ def main():
         model = get_net2(config, pretrained=False)
     logger.info('Model: {}'.format(model.get_name()))
     model = nn.DataParallel(model, device_ids=gpus).to(device=torch.device('cuda:0'))
-    logger.info('Epoch: '.format(args.model_file))
+    logger.info('Model file: {}'.format(args.model_file))
 
     # load model
     state_dict = torch.load(args.model_file)
