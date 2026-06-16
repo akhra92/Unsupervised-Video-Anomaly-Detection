@@ -35,11 +35,46 @@ GT_RANGES = {
 }
 
 
+DATASET_TITLE = {"ped2": "UCSD Ped2", "shanghaitech": "ShanghaiTech", "avenue": "CUHK Avenue"}
+
+
 def load_clip(frames_dir, transform):
-    files = sorted(f for f in os.listdir(frames_dir) if f.endswith(".jpg"))
+    files = sorted(f for f in os.listdir(frames_dir) if f.endswith((".jpg", ".png")))
     pil = [Image.open(os.path.join(frames_dir, f)).convert("RGB") for f in files]
     tensors = [transform(p).unsqueeze(0) for p in pil]  # each [1,C,H,W]
     return pil, tensors
+
+
+def build_gt_pred(config, clip, n_pred, fp):
+    """Binary ground-truth on the predicted-frame axis (len == n_pred).
+    ped2 -> hardcoded frame ranges; others -> test_frame_mask/<clip>.npy."""
+    ds = config.DATASET.DATASET
+    if ds == "ped2":
+        gs, ge = GT_RANGES.get(clip, (0, 0))
+        full = np.zeros(n_pred + fp, dtype=int)
+        if ge > gs:
+            full[gs - 1:ge] = 1
+    else:
+        mask_path = os.path.join(config.DATASET.ROOT, ds, "test_frame_mask", clip + ".npy")
+        full = np.load(mask_path).astype(int)
+    gtp = full[fp:fp + n_pred]
+    if len(gtp) < n_pred:               # pad if mask shorter than predictions
+        gtp = np.pad(gtp, (0, n_pred - len(gtp)))
+    return gtp
+
+
+def contiguous_runs(mask):
+    """List of [lo, hi) spans where mask == 1."""
+    out, i, n = [], 0, len(mask)
+    while i < n:
+        if mask[i]:
+            j = i
+            while j < n and mask[j]:
+                j += 1
+            out.append((i, j)); i = j
+        else:
+            i += 1
+    return out
 
 
 @torch.no_grad()
@@ -64,6 +99,8 @@ def main():
     ap.add_argument("--fps", type=int, default=12)
     ap.add_argument("--step", type=int, default=2,
                     help="render every Nth frame (smaller GIF); scores use all frames")
+    ap.add_argument("--sigma", type=float, default=2.0,
+                    help="Gaussian smoothing of the score curve (lower = tracks onset tighter)")
     ap.add_argument("--relu", action="store_true",
                     help="run with plain ReLU instead of SReLU (needed for the original ped2.pth baseline)")
     args = ap.parse_args()
@@ -101,11 +138,12 @@ def main():
     psnr = compute_psnr(model, tensors, fp, device)
     # anomaly score in [0,1]: higher = more anomalous, lightly smoothed
     reg = (psnr - psnr.min()) / (psnr.max() - psnr.min() + 1e-8)
-    score = gaussian_filter1d(1.0 - reg, sigma=2.0)
+    score = gaussian_filter1d(1.0 - reg, sigma=args.sigma)
 
-    # GT shading aligned to predicted-frame axis (predictions start at frame index fp)
-    gs, ge = GT_RANGES.get(args.clip, (0, 0))
-    gt_lo, gt_hi = max(gs - 1 - fp, 0), max(ge - fp, 0)
+    # GT on predicted-frame axis (predictions start at frame index fp)
+    gtp = build_gt_pred(config, args.clip, len(score), fp)
+    gt_runs = contiguous_runs(gtp)
+    title_ds = DATASET_TITLE.get(config.DATASET.DATASET, config.DATASET.DATASET)
 
     x = np.arange(len(score))
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
@@ -117,8 +155,8 @@ def main():
         # left: the predicted/target video frame
         axv.imshow(pil_frames[t + fp])
         axv.set_xticks([]); axv.set_yticks([])
-        anomalous = gt_lo <= t < gt_hi
-        axv.set_title(f"UCSD Ped2 · Test {args.clip}", fontsize=11)
+        anomalous = bool(gtp[t])
+        axv.set_title(f"{title_ds} · {args.clip}", fontsize=11)
         if anomalous:
             for s in axv.spines.values():
                 s.set_color("red"); s.set_linewidth(3)
@@ -127,8 +165,9 @@ def main():
                      bbox=dict(facecolor="red", edgecolor="none", pad=2))
 
         # right: anomaly score growing up to t
-        if gt_hi > gt_lo:
-            axp.axvspan(gt_lo, gt_hi, color="red", alpha=0.12, label="ground-truth anomaly")
+        for k, (lo, hi) in enumerate(gt_runs):
+            axp.axvspan(lo, hi, color="red", alpha=0.12,
+                        label="ground-truth anomaly" if k == 0 else None)
         axp.plot(x[:t + 1], score[:t + 1], color="#1f77b4", lw=2)
         axp.scatter([t], [score[t]], color="#d62728", zorder=5, s=30)
         axp.set_xlim(0, len(score) - 1)

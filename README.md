@@ -7,17 +7,30 @@ This project implements a **Attention-based Autoencoder Network with Optional Ac
 
 ## **🎬 Demo**  
 
+In each animation the test clip plays on the left while the model's per-frame **anomaly score** (0–1, higher = more anomalous) is plotted on the right. The shaded band marks the ground-truth anomaly window.
+
+**UCSD Ped2 (Test 01)** — the score stays low during normal pedestrian traffic and rises sharply as a cyclist enters the walkway.
+
 <p align="center">
   <img src="assets/ped2_demo.gif" width="100%"/>
 </p>
 
-On **UCSD Ped2 (Test 01)**, the clip plays on the left while the model's per-frame **anomaly score** is plotted on the right. The score stays low during normal pedestrian traffic and rises sharply as a cyclist enters the walkway, aligning with the shaded ground-truth anomaly window.
+**ShanghaiTech (01_0063)** — a harder, multi-scene benchmark; the score stays flat while pedestrians walk, then jumps sharply as a cyclist enters the plaza, inside the ground-truth window.
 
-Generate the animation from a trained checkpoint:
+<p align="center">
+  <img src="assets/shanghaitech_demo.gif" width="100%"/>
+</p>
+
+Generate an animation from a trained checkpoint:
 
 ```sh
+# UCSD Ped2
 python tools/make_demo.py --cfg config/ped2_wresnet.yaml \
-    --model-file <path-to-checkpoint>.pth --clip 01 --out assets/ped2_demo.gif
+    --model-file <checkpoint>.pth --clip 01 --out assets/ped2_demo.gif
+
+# ShanghaiTech
+python tools/make_demo.py --cfg config/shanghaitech_wresnet.yaml \
+    --model-file <checkpoint>.pth --clip 01_0063 --out assets/shanghaitech_demo.gif
 ```
 
 ## **🚀 Getting Started**  
