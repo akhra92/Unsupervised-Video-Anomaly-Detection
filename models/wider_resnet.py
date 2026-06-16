@@ -11,9 +11,10 @@ Norm2d = nn.BatchNorm2d
 class SReLU(nn.Module):
     def __init__(self, alpha=0.1, beta=0.8):
         super(SReLU, self).__init__()
-        self.alpha = torch.tensor(alpha).cuda()  # controls the negative slope, as in Leaky ReLU
-        self.beta = torch.tensor(beta).cuda()    # controls smoothing
-    
+        # learnable per-layer activation shape (the "optional activation function")
+        self.alpha = nn.Parameter(torch.tensor(float(alpha)))  # negative slope, as in Leaky ReLU
+        self.beta = nn.Parameter(torch.tensor(float(beta)))    # smoothing of the transition
+
     def forward(self, x):
         # Leaky ReLU part for negative values
         negative_part = self.alpha * (x - F.relu(-x))
@@ -391,7 +392,7 @@ class wrn38(nn.Module):
         if pretrained:
             pretrained_model = config.MODEL.PRETRAINED
             checkpoint = torch.load(pretrained_model, map_location='cpu')
-            wide_resnet.load_state_dict(checkpoint['state_dict'])
+            wide_resnet.load_state_dict(checkpoint['state_dict'], strict=False)
             del checkpoint
         wide_resnet = wide_resnet.module
         # print(wide_resnet)
@@ -430,7 +431,7 @@ class wrn20(nn.Module):
         if pretrained:
             pretrained_model = config.MODEL.PRETRAINED
             checkpoint = torch.load(pretrained_model, map_location='cpu')
-            wide_resnet.load_state_dict(checkpoint['state_dict'])
+            wide_resnet.load_state_dict(checkpoint['state_dict'], strict=False)
             del checkpoint
         wide_resnet = wide_resnet.module
         # print(wide_resnet)
@@ -497,7 +498,7 @@ class wrn38_layer6(nn.Module):
         if pretrained:
             pretrained_model = config.MODEL.PRETRAINED
             checkpoint = torch.load(pretrained_model, map_location='cpu')
-            wide_resnet.load_state_dict(checkpoint['state_dict'])
+            wide_resnet.load_state_dict(checkpoint['state_dict'], strict=False)
             del checkpoint
         wide_resnet = wide_resnet.module
         # print(wide_resnet)
@@ -536,7 +537,7 @@ class wrn38_layer5(nn.Module):
         if pretrained:
             pretrained_model = config.MODEL.PRETRAINED
             checkpoint = torch.load(pretrained_model, map_location='cpu')
-            wide_resnet.load_state_dict(checkpoint['state_dict'])
+            wide_resnet.load_state_dict(checkpoint['state_dict'], strict=False)
             del checkpoint
         wide_resnet = wide_resnet.module
         # print(wide_resnet)

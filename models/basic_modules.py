@@ -7,9 +7,10 @@ import torch.nn.functional as F
 class SReLU(nn.Module):
     def __init__(self, alpha=0.1, beta=0.8):
         super(SReLU, self).__init__()
-        self.alpha = torch.tensor(alpha).cuda()  # controls the negative slope, as in Leaky ReLU
-        self.beta = torch.tensor(beta).cuda()    # controls smoothing
-    
+        # learnable per-layer activation shape (the "optional activation function")
+        self.alpha = nn.Parameter(torch.tensor(float(alpha)))  # negative slope, as in Leaky ReLU
+        self.beta = nn.Parameter(torch.tensor(float(beta)))    # smoothing of the transition
+
     def forward(self, x):
         # Leaky ReLU part for negative values
         negative_part = self.alpha * (x - F.relu(-x))
