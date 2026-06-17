@@ -21,6 +21,12 @@ In each animation the test clip plays on the left while the model's per-frame **
   <img src="assets/shanghaitech_demo.gif" width="100%"/>
 </p>
 
+**CUHK Avenue (04)** — the score stays low during normal foot traffic and spikes precisely during each of the two anomalous events, matching both ground-truth windows.
+
+<p align="center">
+  <img src="assets/avenue_demo.gif" width="100%"/>
+</p>
+
 Generate an animation from a trained checkpoint:
 
 ```sh
@@ -31,6 +37,10 @@ python tools/make_demo.py --cfg config/ped2_wresnet.yaml \
 # ShanghaiTech
 python tools/make_demo.py --cfg config/shanghaitech_wresnet.yaml \
     --model-file <checkpoint>.pth --clip 01_0063 --out assets/shanghaitech_demo.gif
+
+# CUHK Avenue
+python tools/make_demo.py --cfg config/avenue_wresnet.yaml \
+    --model-file <checkpoint>.pth --clip 04 --out assets/avenue_demo.gif
 ```
 
 ## **🚀 Getting Started**  

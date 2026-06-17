@@ -47,18 +47,26 @@ def load_clip(frames_dir, transform):
 
 def build_gt_pred(config, clip, n_pred, fp):
     """Binary ground-truth on the predicted-frame axis (len == n_pred).
-    ped2 -> hardcoded frame ranges; others -> test_frame_mask/<clip>.npy."""
+    <dataset>.mat 'gt' frame ranges (ped2, avenue) -> else test_frame_mask/<clip>.npy (shanghaitech)."""
+    import scipy.io as scio
     ds = config.DATASET.DATASET
-    if ds == "ped2":
-        gs, ge = GT_RANGES.get(clip, (0, 0))
-        full = np.zeros(n_pred + fp, dtype=int)
-        if ge > gs:
-            full[gs - 1:ge] = 1
+    total = n_pred + fp
+    mat_path = os.path.join(config.DATASET.ROOT, ds, ds + ".mat")
+    npy_path = os.path.join(config.DATASET.ROOT, ds, "test_frame_mask", clip + ".npy")
+    if os.path.exists(mat_path):
+        gt = scio.loadmat(mat_path, squeeze_me=True)["gt"]
+        oa = gt[int(clip) - 1]                       # clip '01' -> video 1
+        if oa.ndim == 1:
+            oa = oa.reshape(2, -1)
+        full = np.zeros(total, dtype=int)
+        for j in range(oa.shape[1]):
+            full[int(oa[0, j]) - 1:int(oa[1, j])] = 1
+    elif os.path.exists(npy_path):
+        full = np.load(npy_path).astype(int)
     else:
-        mask_path = os.path.join(config.DATASET.ROOT, ds, "test_frame_mask", clip + ".npy")
-        full = np.load(mask_path).astype(int)
+        full = np.zeros(total, dtype=int)
     gtp = full[fp:fp + n_pred]
-    if len(gtp) < n_pred:               # pad if mask shorter than predictions
+    if len(gtp) < n_pred:               # pad if labels shorter than predictions
         gtp = np.pad(gtp, (0, n_pred - len(gtp)))
     return gtp
 
@@ -123,7 +131,10 @@ def main():
     state = torch.load(args.model_file, map_location="cpu", weights_only=False)
     if isinstance(state, dict) and "state_dict" in state:
         state = state["state_dict"]
-    model.load_state_dict(state)
+    # strict=False so ReLU-baseline checkpoints (no learnable SReLU alpha/beta) still load
+    missing, unexpected = model.load_state_dict(state, strict=False)
+    if missing or unexpected:
+        print(f"[load] missing={len(missing)} unexpected={len(unexpected)} (expected for ReLU baseline)")
     print(f"Loaded {args.model_file}")
 
     ef, df = config.MODEL.ENCODED_FRAMES, config.MODEL.DECODED_FRAMES
